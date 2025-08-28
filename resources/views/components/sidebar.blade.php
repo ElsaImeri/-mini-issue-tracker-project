@@ -79,6 +79,12 @@
                         <span class="font-medium">{{ __('Projects') }}</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('issues.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('issues.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
+                        <i class="bi bi-exclamation-circle mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('Issues') }}</span>
+                    </a>
+                </li>
             </ul>
 
             <div class="px-4 my-4">
@@ -141,6 +147,12 @@
                         <span class="font-medium">{{ __('Projects') }}</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('issues.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('issues.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
+                        <i class="bi bi-exclamation-circle mr-3 text-lg"></i>
+                        <span class="font-medium">{{ __('Issues') }}</span>
+                    </a>
+                </li>
             </ul>
 
             <div class="px-4 my-4">
@@ -185,6 +197,9 @@
                             </x-nav-link>
                             <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
                                 {{ __('Projects') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('issues.index')" :active="request()->routeIs('issues.*')">
+                                {{ __('Issues') }}
                             </x-nav-link>
                         </div>
                     </div>

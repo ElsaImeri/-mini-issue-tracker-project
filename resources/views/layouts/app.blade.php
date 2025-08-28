@@ -29,7 +29,37 @@
             .menu-item:hover {
                 background: linear-gradient(90deg, rgb(59 130 246 / 0.1) 0%, rgb(59 130 246 / 0.05) 100%);
             }
+            
+            /* Rregullime për sidebar fiks */
+            .desktop-sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                height: 100vh;
+                width: 16rem; /* 64px */
+                overflow-y: auto;
+                z-index: 30;
+            }
+            
+            .main-content-container {
+                margin-left: 16rem; /* 64px */
+                width: calc(100% - 16rem);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            
             @media (max-width: 768px) {
+                .desktop-sidebar {
+                    display: none;
+                }
+                
+                .main-content-container {
+                    margin-left: 0;
+                    width: 100%;
+                }
+                
                 .sidebar-mobile {
                     position: fixed;
                     left: -300px;
@@ -37,6 +67,8 @@
                     bottom: 0;
                     z-index: 50;
                     width: 300px;
+                    height: 100vh;
+                    overflow-y: auto;
                 }
                 .sidebar-mobile.open {
                     left: 0;
@@ -64,7 +96,7 @@
 
         <div class="min-h-screen bg-gray-100 dark:bg-gray-900 flex">
             <!-- Desktop Sidebar -->
-            <aside class="bg-white dark:bg-gray-800 shadow-lg sidebar-transition w-64 flex-shrink-0 hidden md:flex flex-col">
+            <aside class="desktop-sidebar bg-white dark:bg-gray-800 shadow-lg sidebar-transition flex-shrink-0 hidden md:flex flex-col">
                 <!-- Logo -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
                     <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ config('app.name', 'Laravel') }}</a>
@@ -94,6 +126,12 @@
                             <a href="{{ route('projects.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('projects.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
                                 <i class="bi bi-kanban mr-3 text-lg"></i>
                                 <span class="font-medium">{{ __('Projects') }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('issues.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('issues.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
+                                <i class="bi bi-exclamation-circle mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Issues') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -129,7 +167,7 @@
             </aside>
 
             <!-- Mobile sidebar -->
-            <aside class="sidebar-mobile bg-white dark:bg-gray-800 shadow-lg sidebar-transition w-64 flex-shrink-0 flex flex-col md:hidden" :class="{ 'open': mobileOpen }">
+            <aside class="sidebar-mobile bg-white dark:bg-gray-800 shadow-lg sidebar-transition flex-shrink-0 flex flex-col md:hidden" :class="{ 'open': mobileOpen }">
                 <!-- Logo -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
                     <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ config('app.name', 'Laravel') }}</a>
@@ -162,6 +200,12 @@
                             <a href="{{ route('projects.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('projects.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
                                 <i class="bi bi-kanban mr-3 text-lg"></i>
                                 <span class="font-medium">{{ __('Projects') }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('issues.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('issues.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
+                                <i class="bi bi-exclamation-circle mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Issues') }}</span>
                             </a>
                         </li>
                     </ul>
@@ -197,7 +241,7 @@
             </aside>
 
             <!-- Main Content -->
-            <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="main-content-container">
                 <!-- Top navigation bar - Simplified -->
                 <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
@@ -213,6 +257,8 @@
                                             {{ __('Dashboard') }}
                                         @elseif(request()->routeIs('projects.*'))
                                             {{ __('Projects') }}
+                                        @elseif(request()->routeIs('issues.*'))
+                                            {{ __('Issues') }}
                                         @elseif(request()->routeIs('profile.edit'))
                                             {{ __('Profile') }}
                                         @else
