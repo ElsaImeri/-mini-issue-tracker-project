@@ -6,12 +6,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CommentController;
-
-
-
-
 Route::get('/', function () {
-    return view('welcome');
+     return redirect()->route('login');
+
 });
 
 Route::get('/dashboard', function () {
@@ -29,6 +26,9 @@ Route::middleware('auth')->group(function () {
    Route::post('/tags/api', [TagController::class, 'storeApi'])->name('tags.store.api');
    Route::get('/issues/{issue}/comments', [CommentController::class, 'index'])->name('comments.index');
 Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/issues/{issue}/tags', [IssueController::class, 'updateTags'])->name('issues.tags.update');
+    Route::get('/issues/{issue}/comments', [IssueController::class, 'getComments'])->name('issues.comments.get');
+    
 });
 
 require __DIR__.'/auth.php';

@@ -76,13 +76,13 @@
                     @csrf
                     <input type="hidden" name="issue_id" value="{{ $issue->id }}">
                     <div class="mb-3">
-                        <label for="author_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                        <label for="author_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name *</label>
                         <input type="text" name="author_name" id="author_name" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <p id="author_name_error" class="mt-1 text-sm text-red-600 hidden"></p>
                     </div>
                     <div class="mb-3">
-                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                        <label for="body" class="block text-sm font-medium text-gray-700 mb-1">Comment *</label>
                         <textarea name="body" id="body" rows="3" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="Add your comment here..."></textarea>
@@ -95,24 +95,27 @@
 
                 <!-- Comments List -->
                 <div id="comments-container">
-                    <div class="space-y-4">
-                        @foreach($issue->comments as $comment)
-                            <div class="border-b border-gray-200 pb-4 last:border-b-0">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-medium text-gray-900">{{ $comment->author_name }}</h4>
-                                    <span class="text-sm text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
-                                </div>
-                                <p class="text-gray-700">{{ $comment->body }}</p>
-                            </div>
-                        @endforeach
+                    <div class="space-y-4" id="comments-list">
+                        <!-- Comments will be loaded via AJAX -->
+                    </div>
+                    
+                    <!-- Loading Indicator -->
+                    <div id="comments-loading" class="text-center py-4">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <p class="mt-2 text-gray-500">Loading comments...</p>
                     </div>
                 </div>
 
-                <!-- Pagination (Will be used for AJAX loading) -->
-                <div id="comments-pagination" class="mt-4 hidden">
+                <!-- Load More Button -->
+                <div id="load-more-container" class="mt-4 hidden">
                     <button id="load-more-comments" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition duration-200">
                         Load More Comments
                     </button>
+                </div>
+
+                <!-- No Comments Message -->
+                <div id="no-comments" class="hidden text-center py-8">
+                    <p class="text-gray-500">No comments yet. Be the first to comment!</p>
                 </div>
             </div>
         </div>
@@ -176,32 +179,12 @@
                         <button type="button" 
                                 data-tag-id="{{ $tag->id }}"
                                 class="tag-toggle-btn px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 
-                                       {{ $issue->tags->contains($tag->id) ? 'ring-2 ring-offset-2' : 'opacity-70' }}"
+                                       {{ $issue->tags->contains($tag->id) ? 'ring-2 ring-blue-500 ring-offset-2' : 'opacity-70' }}"
                                 style="background-color: {{ $tag->color }}20; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40;">
                             {{ $tag->name }}
                         </button>
                     @endforeach
                 </div>
-            </div>
-
-            <!-- Create New Tag -->
-            <div class="border-t pt-4 mt-4">
-                <h4 class="text-sm font-medium text-gray-700 mb-2">Create New Tag</h4>
-                <form id="create-tag-form" class="space-y-3">
-                    @csrf
-                    <div>
-                        <input type="text" name="name" placeholder="Tag name" required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <p id="tag-name-error" class="mt-1 text-sm text-red-600 hidden"></p>
-                    </div>
-                    <div>
-                        <input type="color" name="color" value="#3b82f6"
-                            class="w-full h-10 px-1 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm transition duration-200">
-                        Create Tag
-                    </button>
-                </form>
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-4 border-t">
@@ -224,24 +207,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const manageTagsBtn = document.getElementById('manage-tags-btn');
     const closeTagsModal = document.getElementById('close-tags-modal');
     const saveTagsBtn = document.getElementById('save-tags-btn');
-    const availableTags = document.getElementById('available-tags');
     const tagsContainer = document.getElementById('tags-container');
-    const createTagForm = document.getElementById('create-tag-form');
-    const tagNameError = document.getElementById('tag-name-error');
 
     let selectedTags = new Set(@json($issue->tags->pluck('id')));
 
     // Toggle tag selection
-    availableTags.addEventListener('click', function(e) {
+    document.getElementById('available-tags').addEventListener('click', function(e) {
         if (e.target.classList.contains('tag-toggle-btn')) {
             const tagId = e.target.dataset.tagId;
             if (selectedTags.has(tagId)) {
                 selectedTags.delete(tagId);
-                e.target.classList.remove('ring-2', 'ring-offset-2');
+                e.target.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
                 e.target.classList.add('opacity-70');
             } else {
                 selectedTags.add(tagId);
-                e.target.classList.add('ring-2', 'ring-offset-2');
+                e.target.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
                 e.target.classList.remove('opacity-70');
             }
         }
@@ -257,9 +237,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tagsModal.classList.add('hidden');
     });
 
-    // Save tags
+    // Save tags via AJAX
     saveTagsBtn.addEventListener('click', function() {
-        fetch('{{ route('issues.update-tags', $issue) }}', {
+        fetch('{{ route('issues.tags.update', $issue) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -273,51 +253,79 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update tags display
                 tagsContainer.innerHTML = data.tags_html;
                 tagsModal.classList.add('hidden');
+                
+                // Show success message
+                showTempMessage('Tags updated successfully!', 'success');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showTempMessage('An error occurred. Please try again.', 'error');
+        });
     });
 
-    // Create new tag
-    createTagForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Comments functionality
+    const commentsList = document.getElementById('comments-list');
+    const commentsLoading = document.getElementById('comments-loading');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const loadMoreButton = document.getElementById('load-more-comments');
+    const noComments = document.getElementById('no-comments');
+    let currentPage = 1;
+    let isLoading = false;
+
+    // Load comments on page load
+    loadComments();
+
+    // Load more comments
+    loadMoreButton.addEventListener('click', function() {
+        currentPage++;
+        loadComments();
+    });
+
+    function loadComments() {
+        if (isLoading) return;
         
-        const formData = new FormData(this);
-        
-        fetch('{{ route('tags.store') }}', {
-            method: 'POST',
+        isLoading = true;
+        commentsLoading.classList.remove('hidden');
+        loadMoreContainer.classList.add('hidden');
+
+        fetch(`{{ route('issues.comments.get', $issue) }}?page=${currentPage}`, {
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: formData
+            }
         })
         .then(response => response.json())
         .then(data => {
-            if (data.errors) {
-                tagNameError.textContent = data.errors.name ? data.errors.name[0] : '';
-                tagNameError.classList.remove('hidden');
-            } else if (data.tag) {
-                // Add new tag to available tags
-                const newTagBtn = document.createElement('button');
-                newTagBtn.type = 'button';
-                newTagBtn.dataset.tagId = data.tag.id;
-                newTagBtn.classList.add('tag-toggle-btn', 'px-3', 'py-1', 'rounded-full', 'text-xs', 'font-medium', 'transition-all', 'duration-200', 'opacity-70');
-                newTagBtn.style.backgroundColor = data.tag.color + '20';
-                newTagBtn.style.color = data.tag.color;
-                newTagBtn.style.border = '1px solid ' + data.tag.color + '40';
-                newTagBtn.textContent = data.tag.name;
-                
-                availableTags.appendChild(newTagBtn);
-                createTagForm.reset();
-                tagNameError.classList.add('hidden');
+            commentsLoading.classList.add('hidden');
+
+            if (currentPage === 1 && data.comments === '') {
+                noComments.classList.remove('hidden');
+                return;
+            }
+
+            if (data.comments) {
+                noComments.classList.add('hidden');
+                if (currentPage === 1) {
+                    commentsList.innerHTML = data.comments;
+                } else {
+                    commentsList.innerHTML += data.comments;
+                }
+            }
+
+            if (data.has_more) {
+                loadMoreContainer.classList.remove('hidden');
             }
         })
-        .catch(error => console.error('Error:', error));
-    });
+        .catch(error => {
+            console.error('Error loading comments:', error);
+            commentsLoading.classList.add('hidden');
+        })
+        .finally(() => {
+            isLoading = false;
+        });
+    }
 
     // Add comment via AJAX
     const commentForm = document.getElementById('comment-form');
@@ -344,29 +352,52 @@ document.addEventListener('DOMContentLoaded', function() {
                 authorNameError.classList.toggle('hidden', !data.errors.author_name);
                 bodyError.textContent = data.errors.body ? data.errors.body[0] : '';
                 bodyError.classList.toggle('hidden', !data.errors.body);
-            } else if (data.comment) {
+            } else if (data.success) {
                 // Prepend new comment
-                const commentsContainer = document.querySelector('#comments-container .space-y-4');
-                const newComment = document.createElement('div');
-                newComment.className = 'border-b border-gray-200 pb-4';
-                newComment.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-medium text-gray-900">${data.comment.author_name}</h4>
-                        <span class="text-sm text-gray-500">Just now</span>
-                    </div>
-                    <p class="text-gray-700">${data.comment.body}</p>
-                `;
-                
-                commentsContainer.insertBefore(newComment, commentsContainer.firstChild);
+                const newComment = createCommentElement(data.comment);
+                commentsList.insertBefore(newComment, commentsList.firstChild);
                 
                 // Clear form
                 commentForm.reset();
                 authorNameError.classList.add('hidden');
                 bodyError.classList.add('hidden');
+                noComments.classList.add('hidden');
+
+                showTempMessage('Comment added successfully!', 'success');
             }
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error);
+            showTempMessage('An error occurred. Please try again.', 'error');
+        });
     });
+
+    function createCommentElement(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'border-b border-gray-200 pb-4 last:border-b-0';
+        commentDiv.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-medium text-gray-900">${comment.author_name}</h4>
+                <span class="text-sm text-gray-500">Just now</span>
+            </div>
+            <p class="text-gray-700">${comment.body}</p>
+        `;
+        return commentDiv;
+    }
+
+    function showTempMessage(message, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-md z-50 ${
+            type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+        }`;
+        messageDiv.textContent = message;
+        
+        document.body.appendChild(messageDiv);
+        
+        setTimeout(() => {
+            messageDiv.remove();
+        }, 3000);
+    }
 });
 </script>
 @endsection

@@ -9,6 +9,7 @@ use App\Http\Requests\StoreIssueRequest;
 use App\Http\Requests\UpdateIssueRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 
 class IssueController extends Controller
@@ -57,10 +58,8 @@ class IssueController extends Controller
 
     public function show(Issue $issue): View
     {
-        // Eager load relacionet për të shmangur N+1
-        $issue->load(['project', 'tags', 'comments' => function ($query) {
-            $query->latest();
-        }]);
+        // Eager load relacionet për të shmangur N+1 (pa komente - do të ngarkohen me AJAX)
+        $issue->load(['project', 'tags']);
 
         // Merr të gjitha tag-et për modal-in e menaxhimit të tag-eve
         $allTags = Tag::all();
@@ -99,5 +98,66 @@ class IssueController extends Controller
 
         return redirect()->route('issues.index')
             ->with('success', 'Issue deleted successfully.');
+    }
+
+    /**
+     * Update tags for an issue via AJAX
+     */
+    public function updateTags(Request $request, Issue $issue): JsonResponse
+    {
+        $request->validate([
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+        ]);
+
+        $issue->tags()->sync($request->tags ?? []);
+
+        // Generate updated tags HTML for response
+        $tagsHtml = '';
+        foreach ($issue->fresh()->tags as $tag) {
+            $tagsHtml .= '<span class="px-3 py-1 rounded-full text-xs font-medium" 
+                          style="background-color: ' . $tag->color . '20; color: ' . $tag->color . '; border: 1px solid ' . $tag->color . '40;">
+                          ' . $tag->name . '
+                          </span>';
+        }
+
+        if ($issue->tags->count() == 0) {
+            $tagsHtml = '<p class="text-gray-500 text-sm">No tags assigned.</p>';
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tags updated successfully',
+            'tags_html' => $tagsHtml
+        ]);
+    }
+
+    /**
+     * Get comments for an issue via AJAX (paginated)
+     */
+    public function getComments(Issue $issue, Request $request): JsonResponse
+    {
+        $comments = $issue->comments()
+            ->with('issue')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        $commentsHtml = '';
+        foreach ($comments as $comment) {
+            $commentsHtml .= '<div class="border-b border-gray-200 pb-4 last:border-b-0">
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-medium text-gray-900">' . $comment->author_name . '</h4>
+                    <span class="text-sm text-gray-500">' . $comment->created_at->diffForHumans() . '</span>
+                </div>
+                <p class="text-gray-700">' . $comment->body . '</p>
+            </div>';
+        }
+
+        return response()->json([
+            'success' => true,
+            'comments' => $commentsHtml,
+            'has_more' => $comments->hasMorePages(),
+            'next_page' => $comments->nextPageUrl()
+        ]);
     }
 }
