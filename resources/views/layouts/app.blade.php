@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Issue Tracker ') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,12 +22,12 @@
                 transition: all 0.3s ease;
             }
             .active-menu {
-                background: linear-gradient(90deg, rgb(59 130 246 / 0.2) 0%, rgb(59 130 246 / 0.1) 100%);
-                border-right: 4px solid #3b82f6;
-                color: #3b82f6;
+                background: linear-gradient(90deg, rgb(99 102 241 / 0.2) 0%, rgb(99 102 241 / 0.1) 100%);
+                border-right: 4px solid #6366f1;
+                color: #6366f1;
             }
             .menu-item:hover {
-                background: linear-gradient(90deg, rgb(59 130 246 / 0.1) 0%, rgb(59 130 246 / 0.05) 100%);
+                background: linear-gradient(90deg, rgb(99 102 241 / 0.1) 0%, rgb(99 102 241 / 0.05) 100%);
             }
             
             /* Rregullime për sidebar fiks */
@@ -113,12 +113,12 @@
             <aside class="desktop-sidebar bg-white dark:bg-gray-800 shadow-lg sidebar-transition flex-shrink-0 hidden md:flex flex-col">
                 <!-- Logo -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-center">
-                    <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ config('app.name', 'Laravel') }}</a>
+                    <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Issue Tracker</a>
                 </div>
 
                 <!-- User Profile -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-3">
-                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                    <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
                         {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                     </div>
                     <div>
@@ -198,7 +198,7 @@
             <aside class="sidebar-mobile bg-white dark:bg-gray-800 shadow-lg sidebar-transition flex-shrink-0 flex flex-col md:hidden" :class="{ 'open': mobileOpen }">
                 <!-- Logo -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                    <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ config('app.name', 'Laravel') }}</a>
+                    <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">Issue Tracker </a>
                     <button @click="mobileOpen = false" class="p-1 rounded-md text-gray-400 hover:text-gray-500">
                         <i class="bi bi-x-lg text-xl"></i>
                     </button>
@@ -206,7 +206,7 @@
 
                 <!-- User Profile -->
                 <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center space-x-3">
-                    <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                    <div class="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
                         {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
                     </div>
                     <div>
@@ -308,7 +308,7 @@
                                         @elseif(request()->routeIs('profile.edit'))
                                             {{ __('Profile') }}
                                         @else
-                                            {{ config('app.name', 'Laravel') }}
+                                            Issue Tracker 
                                         @endif
                                     </h1>
                                 </div>

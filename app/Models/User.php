@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -53,5 +54,10 @@ class User extends Authenticatable
     public function assignedIssues(): BelongsToMany
     {
         return $this->belongsToMany(Issue::class, 'issue_user');
+    }
+   // Metodë helper për të kontrolluar nëse është admin
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

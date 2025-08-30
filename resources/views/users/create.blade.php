@@ -68,6 +68,21 @@
                        name="password_confirmation" required>
             </div>
 
+            <!-- Role Selection -->
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="bi bi-person-badge-fill mr-1"></i> Role
+                </label>
+                <select id="role" name="role" class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 @error('role') border-red-500 @enderror" required>
+                    <option value="">Select a role</option>
+                    <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
+                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                </select>
+                @error('role')
+                    <p class="text-red-600 text-sm mt-1"><i class="bi bi-exclamation-circle-fill mr-1"></i>{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Buttons -->
             <div class="flex justify-end space-x-3">
                 <a href="{{ route('users.index') }}" 

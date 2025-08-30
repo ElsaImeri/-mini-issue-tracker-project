@@ -16,8 +16,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        // Lejojmë të gjithë përdoruesit e autentifikuar të shohin listën e përdoruesve
-        // Por vetëm admin mund të kryejë operacione CRUD (kjo kontrollohet në view)
+        
         $users = User::latest()->paginate(10);
         return view('users.index', compact('users'));
     }
@@ -27,7 +26,6 @@ class UserController extends Controller
      */
     public function create()
     {
-        // Vetëm admin mund të krijojë përdorues
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
@@ -40,7 +38,6 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Vetëm admin mund të krijojë përdorues
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
@@ -68,7 +65,6 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        // Të gjithë përdoruesit e autentifikuar mund të shohin profilet e përdoruesve
         return view('users.show', compact('user'));
     }
 
@@ -77,7 +73,6 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        // Vetëm admin mund të modifikojë përdorues
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
@@ -90,7 +85,6 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        // Vetëm admin mund të modifikojë përdorues
         if (Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }

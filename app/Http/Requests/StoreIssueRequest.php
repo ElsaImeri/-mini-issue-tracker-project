@@ -20,7 +20,19 @@ class StoreIssueRequest extends FormRequest
             'description' => 'nullable|string',
             'status' => ['required', Rule::in(['open', 'in_progress', 'closed'])],
             'priority' => ['required', Rule::in(['low', 'medium', 'high'])],
-            'due_date' => 'nullable|date|after_or_equal:today',
+            'due_date' => 'required|date|after_or_equal:today', 
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'assigned_users' => 'nullable|array',
+            'assigned_users.*' => 'exists:users,id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'due_date.required' => 'Due date is required',
+            'due_date.after_or_equal' => 'Due date must be today or a future date',
         ];
     }
 }

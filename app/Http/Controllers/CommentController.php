@@ -44,20 +44,16 @@ class CommentController extends Controller
             'success' => true,
             'comment' => $comment,
             'message' => 'Comment added successfully.'
-        ], 201); // 201 Created status
+        ], 201); 
     }
 
-    // Optional: Add update and delete methods if needed
     public function update(Request $request, Comment $comment): JsonResponse
     {
         $request->validate([
             'body' => 'required|string|min:1|max:2000',
         ]);
 
-        // Optional: Add authorization check here
-        // if (!auth()->check() || auth()->user()->name !== $comment->author_name) {
-        //     return response()->json(['error' => 'Unauthorized'], 403);
-        // }
+      
 
         $comment->update([
             'body' => $request->body
@@ -72,10 +68,7 @@ class CommentController extends Controller
 
     public function destroy(Comment $comment): JsonResponse
     {
-        // Optional: Add authorization check here
-        // if (!auth()->check() || auth()->user()->name !== $comment->author_name) {
-        //     return response()->json(['error' => 'Unauthorized'], 403);
-        // }
+       
 
         $comment->delete();
 

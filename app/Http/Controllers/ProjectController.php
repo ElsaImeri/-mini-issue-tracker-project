@@ -7,11 +7,12 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests; // Add this
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Carbon\Carbon;
 
 class ProjectController extends Controller
 {
-    use AuthorizesRequests; // Add this trait
+    use AuthorizesRequests; 
 
     public function index(): View
     {
@@ -29,9 +30,11 @@ class ProjectController extends Controller
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
-        // Shto user_id automatikisht nga useri i loguar
         $validated = $request->validated();
         $validated['user_id'] = auth()->id();
+        
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->format('Y-m-d');
+        $validated['deadline'] = Carbon::parse($validated['deadline'])->format('Y-m-d');
         
         Project::create($validated);
 
@@ -51,7 +54,6 @@ class ProjectController extends Controller
 
     public function edit(Project $project): View
     {
-        // Autorizimi për editim
         $this->authorize('update', $project);
         
         return view('projects.edit', compact('project'));
@@ -59,10 +61,14 @@ class ProjectController extends Controller
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        // Autorizimi për update
         $this->authorize('update', $project);
         
-        $project->update($request->validated());
+        $validated = $request->validated();
+        
+        $validated['start_date'] = Carbon::parse($validated['start_date'])->format('Y-m-d');
+        $validated['deadline'] = Carbon::parse($validated['deadline'])->format('Y-m-d');
+        
+        $project->update($validated);
 
         return redirect()->route('projects.index')
             ->with('success', 'Project updated successfully.');
@@ -70,7 +76,6 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): RedirectResponse
     {
-        // Autorizimi për fshirje
         $this->authorize('delete', $project);
         
         $project->delete();
