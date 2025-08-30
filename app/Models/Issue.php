@@ -18,16 +18,39 @@ class Issue extends Model
         'description',
         'status',
         'priority',
-        'due_date',
+        'due_date'
     ];
 
     protected $casts = [
         'due_date' => 'date',
     ];
 
+    public static function getStatuses(): array
+    {
+        return [
+            'open' => 'Open',
+            'in_progress' => 'In Progress',
+            'closed' => 'Closed'
+        ];
+    }
+
+    public static function getPriorities(): array
+    {
+        return [
+            'low' => 'Low',
+            'medium' => 'Medium',
+            'high' => 'High'
+        ];
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     public function comments(): HasMany
@@ -35,8 +58,31 @@ class Issue extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function tags(): BelongsToMany
+    public function assignedUsers(): BelongsToMany
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(User::class, 'issue_user');
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return [
+            'open' => 'blue',
+            'in_progress' => 'yellow',
+            'closed' => 'green'
+        ][$this->status] ?? 'gray';
+    }
+
+    public function getPriorityColorAttribute(): string
+    {
+        return [
+            'low' => 'gray',
+            'medium' => 'orange',
+            'high' => 'red'
+        ][$this->priority] ?? 'gray';
+    }
+
+    public function isOverdue(): bool
+    {
+        return $this->due_date && $this->due_date->isPast();
     }
 }

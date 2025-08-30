@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Comment;
 use App\Models\Issue;
+use App\Http\Requests\StoreCommentRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,8 +13,8 @@ class CommentController extends Controller
     public function index(Issue $issue): JsonResponse
     {
         $comments = $issue->comments()
-            ->with('issue') // Eager load the issue relationship
-            ->latest()
+            ->with('issue')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
 
         return response()->json([
@@ -21,27 +22,66 @@ class CommentController extends Controller
             'pagination' => [
                 'hasMore' => $comments->hasMorePages(),
                 'nextPage' => $comments->nextPageUrl(),
+                'currentPage' => $comments->currentPage(),
+                'total' => $comments->total(),
             ]
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreCommentRequest $request): JsonResponse
     {
-        $request->validate([
-            'issue_id' => 'required|exists:issues,id',
-            'author_name' => 'required|string|max:255',
-            'body' => 'required|string|min:1',
+        $validated = $request->validated();
+
+        $comment = Comment::create([
+            'issue_id' => $validated['issue_id'],
+            'author_name' => $validated['author_name'],
+            'body' => $validated['body']
         ]);
 
-        $comment = Comment::create($request->only(['issue_id', 'author_name', 'body']));
-
-        // Load the issue relationship for the response
         $comment->load('issue');
 
         return response()->json([
             'success' => true,
             'comment' => $comment,
             'message' => 'Comment added successfully.'
+        ], 201); // 201 Created status
+    }
+
+    // Optional: Add update and delete methods if needed
+    public function update(Request $request, Comment $comment): JsonResponse
+    {
+        $request->validate([
+            'body' => 'required|string|min:1|max:2000',
+        ]);
+
+        // Optional: Add authorization check here
+        // if (!auth()->check() || auth()->user()->name !== $comment->author_name) {
+        //     return response()->json(['error' => 'Unauthorized'], 403);
+        // }
+
+        $comment->update([
+            'body' => $request->body
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'comment' => $comment,
+            'message' => 'Comment updated successfully.'
+        ]);
+    }
+
+    public function destroy(Comment $comment): JsonResponse
+    {
+        // Optional: Add authorization check here
+        // if (!auth()->check() || auth()->user()->name !== $comment->author_name) {
+        //     return response()->json(['error' => 'Unauthorized'], 403);
+        // }
+
+        $comment->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment deleted successfully.'
         ]);
     }
 }

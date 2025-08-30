@@ -1,34 +1,49 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\IssueController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\CommentController;
-Route::get('/', function () {
-     return redirect()->route('login');
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
+use Illuminate\Support\Facades\Route;
 
+// Redirect kryesor te login
+Route::get('/', function () {
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Dashboard route
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
+// Auth group për të gjitha rrugët që kërkojnë autentifikim
 Route::middleware('auth')->group(function () {
+    // Profile routes (nga Breeze)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Resource routes
+    Route::resource('users', UserController::class);
     Route::resource('projects', ProjectController::class);
     Route::resource('issues', IssueController::class);
-    Route::post('/issues/{issue}/update-tags', [IssueController::class, 'updateTags'])->name('issues.update-tags');
     Route::resource('tags', TagController::class);
-   Route::post('/tags/api', [TagController::class, 'storeApi'])->name('tags.store.api');
-   Route::get('/issues/{issue}/comments', [CommentController::class, 'index'])->name('comments.index');
-Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-Route::post('/issues/{issue}/tags', [IssueController::class, 'updateTags'])->name('issues.tags.update');
-    Route::get('/issues/{issue}/comments', [IssueController::class, 'getComments'])->name('issues.comments.get');
+
+    // API/AJAX routes për tags
+    Route::post('/tags/api', [TagController::class, 'storeApi'])->name('tags.store.api');
     
+    // API/AJAX routes për issues
+    Route::post('/issues/{issue}/update-tags', [IssueController::class, 'updateTags'])->name('issues.update-tags');
+    Route::post('/issues/{issue}/update-assigned-users', [IssueController::class, 'updateAssignedUsers'])->name('issues.update-assigned-users');
+    Route::get('/issues/{issue}/comments', [IssueController::class, 'getComments'])->name('issues.comments.get');
+    Route::post('/issues/{issue}/comments', [IssueController::class, 'storeComment'])->name('issues.comments.store');
+
+    // Search routes
+    Route::post('/projects/search', [ProjectController::class, 'search'])->name('projects.search');
+    Route::post('/issues/search', [IssueController::class, 'search'])->name('issues.search');
 });
 
 require __DIR__.'/auth.php';

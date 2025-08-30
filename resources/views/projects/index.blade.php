@@ -1,128 +1,140 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-10">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-8">
-        <div class="mb-4 md:mb-0">
-            <h1 class="text-3xl font-bold text-gray-800">Project Management</h1>
-            <p class="text-gray-600 mt-2">Manage all your projects in one place</p>
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-10">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="bi bi-kanban-fill text-blue-600"></i>
+                Project Management
+            </h1>
+            <p class="text-gray-500 mt-2">Manage all your projects efficiently in one place</p>
         </div>
-        <a href="{{ route('projects.create') }}" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition duration-200 shadow-md">
-            <i class="bi bi-plus-circle mr-2"></i>
+        <a href="{{ route('projects.create') }}" 
+           class="mt-4 md:mt-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-medium shadow-md transition">
+            <i class="bi bi-plus-circle"></i>
             Create New Project
         </a>
     </div>
 
     <!-- Success Message -->
     @if(session('success'))
-        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-sm">
-            <div class="flex items-center">
-                <i class="bi bi-check-circle-fill text-green-500 mr-2"></i>
-                <p>{{ session('success') }}</p>
+        <div id="success-message" 
+             class="flex items-center justify-between bg-green-50 border border-green-200 text-green-700 px-5 py-3 rounded-xl shadow-sm mb-8">
+            <div class="flex items-center gap-2">
+                <i class="bi bi-check-circle-fill text-green-600 text-lg"></i>
+                <span>{{ session('success') }}</span>
             </div>
+            <button type="button" onclick="dismissMessage()" class="hover:text-green-900 transition">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
     @endif
 
-    <!-- Projects Table Card -->
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+    <!-- Projects Table -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500 font-semibold">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <div class="flex items-center">
-                                <i class="bi bi-folder2-open mr-2"></i>
+                        <th class="px-6 py-4 text-left">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-folder2-open"></i>
                                 Project
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <div class="flex items-center">
-                                <i class="bi bi-exclamation-circle mr-2"></i>
+                        <th class="px-6 py-4 text-left">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-exclamation-circle"></i>
                                 Issues
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <div class="flex items-center">
-                                <i class="bi bi-calendar-event mr-2"></i>
+                        <th class="px-6 py-4 text-left">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-calendar-event"></i>
                                 Timeline
                             </div>
                         </th>
-                        <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <div class="flex items-center">
-                                <i class="bi bi-gear mr-2"></i>
+                        <th class="px-6 py-4 text-left">
+                            <div class="flex items-center gap-2">
+                                <i class="bi bi-gear"></i>
                                 Actions
                             </div>
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="divide-y divide-gray-200">
                     @forelse($projects as $project)
-                        <tr class="hover:bg-blue-50 transition duration-150">
+                        <tr class="hover:bg-blue-50 transition">
+                            <!-- Project -->
                             <td class="px-6 py-5">
-                                <div class="flex items-start">
-                                    <div class="flex-shrink-0 h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center mt-1">
-                                        <i class="bi bi-kanban text-blue-600"></i>
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0 h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                                        <i class="bi bi-kanban text-blue-600 text-lg"></i>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-semibold text-gray-900">{{ $project->name }}</div>
-                                        <div class="text-sm text-gray-500 mt-1 line-clamp-2">{{ Str::limit($project->description, 100) }}</div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900">{{ $project->name }}</div>
+                                        <div class="text-gray-500 mt-1 line-clamp-2">{{ Str::limit($project->description, 100) }}</div>
                                     </div>
                                 </div>
                             </td>
+
+                            <!-- Issues -->
                             <td class="px-6 py-5 whitespace-nowrap">
-                                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                                <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium
                                     {{ $project->issues_count > 0 ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800' }}">
-                                    <i class="bi {{ $project->issues_count > 0 ? 'bi-exclamation-triangle' : 'bi-check-circle' }} mr-1"></i>
+                                    <i class="bi {{ $project->issues_count > 0 ? 'bi-exclamation-triangle' : 'bi-check-circle' }}"></i>
                                     {{ $project->issues_count }} {{ Str::plural('issue', $project->issues_count) }}
                                 </div>
                             </td>
+
+                            <!-- Timeline -->
                             <td class="px-6 py-5 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">
-                                    <div class="flex items-center">
-                                        <i class="bi bi-play-circle mr-1 text-gray-400"></i>
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex items-center gap-1 text-gray-700">
+                                        <i class="bi bi-play-circle text-gray-400"></i>
                                         {{ $project->start_date?->format('M d, Y') ?? 'Not set' }}
                                     </div>
-                                </div>
-                                <div class="text-sm text-gray-500 mt-1">
-                                    <div class="flex items-center">
-                                        <i class="bi bi-flag mr-1 text-gray-400"></i>
+                                    <div class="flex items-center gap-1 text-gray-500">
+                                        <i class="bi bi-flag text-gray-400"></i>
                                         {{ $project->deadline?->format('M d, Y') ?? 'Not set' }}
                                     </div>
                                 </div>
                             </td>
+
+                            <!-- Actions -->
                             <td class="px-6 py-5 whitespace-nowrap">
-                                <div class="flex items-center space-x-3">
+                                <div class="flex items-center gap-2">
                                     <a href="{{ route('projects.show', $project) }}" 
-                                       class="text-blue-600 hover:text-blue-800 p-2 rounded-full hover:bg-blue-100 transition"
-                                       title="View Project">
+                                       class="p-2 rounded-lg text-blue-600 hover:bg-blue-100 transition" title="View">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     <a href="{{ route('projects.edit', $project) }}" 
-                                       class="text-green-600 hover:text-green-800 p-2 rounded-full hover:bg-green-100 transition"
-                                       title="Edit Project">
+                                       class="p-2 rounded-lg text-green-600 hover:bg-green-100 transition" title="Edit">
                                         <i class="bi bi-pencil-square"></i>
                                     </a>
-                                    <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline">
+                                    <button type="button" 
+                                            onclick="confirmDelete({{ $project->id }}, '{{ addslashes($project->name) }}')" 
+                                            class="p-2 rounded-lg text-red-600 hover:bg-red-100 transition" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                    <form id="delete-form-{{ $project->id }}" action="{{ route('projects.destroy', $project) }}" method="POST" class="hidden">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-600 hover:text-red-800 p-2 rounded-full hover:bg-red-100 transition"
-                                                onclick="return confirm('Are you sure you want to delete this project?')"
-                                                title="Delete Project">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-12 text-center">
-                                <div class="flex flex-col items-center justify-center text-gray-400">
-                                    <i class="bi bi-inbox text-4xl mb-3"></i>
-                                    <p class="text-lg">No projects found.</p>
-                                    <p class="mt-2">Get started by <a href="{{ route('projects.create') }}" class="text-blue-600 hover:text-blue-800">creating a new project</a>.</p>
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-400">
+                                <div class="flex flex-col items-center gap-2">
+                                    <i class="bi bi-inbox text-4xl"></i>
+                                    <p class="text-lg font-medium">No projects found</p>
+                                    <p class="text-sm">Get started by 
+                                        <a href="{{ route('projects.create') }}" class="text-blue-600 hover:text-blue-800 font-medium">creating a new project</a>.
+                                    </p>
                                 </div>
                             </td>
                         </tr>
@@ -134,13 +146,39 @@
 
     <!-- Pagination -->
     @if($projects->hasPages())
-    <div class="mt-6 bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-100">
-        {{ $projects->links() }}
-    </div>
+        <div class="mt-8">
+            {{ $projects->links() }}
+        </div>
     @endif
 </div>
 
-<!-- Add Bootstrap Icons -->
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <i class="bi bi-exclamation-octagon text-red-600"></i>
+                Confirm Deletion
+            </h3>
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <p class="text-gray-600 mb-6">
+            Are you sure you want to delete project 
+            "<span id="project-name" class="font-medium text-gray-900"></span>"? 
+            This action cannot be undone.
+        </p>
+        <div class="flex justify-end gap-3">
+            <button type="button" onclick="closeModal()" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">Cancel</button>
+            <button type="button" id="confirm-delete" 
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
 
 <style>
@@ -150,41 +188,45 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
-    
-    .pagination {
-        display: flex;
-        justify-content: center;
-        list-style-type: none;
-        padding: 0;
-    }
-    
-    .pagination li {
-        margin: 0 4px;
-    }
-    
-    .pagination a,
-    .pagination span {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 40px;
-        width: 40px;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        color: #4b5563;
-        text-decoration: none;
-        transition: all 0.2s;
-    }
-    
-    .pagination a:hover {
-        background-color: #f3f4f6;
-        border-color: #d1d5db;
-    }
-    
-    .pagination .active span {
-        background-color: #3b82f6;
-        color: white;
-        border-color: #3b82f6;
-    }
 </style>
+
+<script>
+    // Auto-dismiss success message
+    setTimeout(() => dismissMessage(), 5000);
+
+    function dismissMessage() {
+        const msg = document.getElementById('success-message');
+        if (msg) {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 300);
+        }
+    }
+
+    let currentProjectId = null;
+
+    function confirmDelete(projectId, projectName) {
+        currentProjectId = projectId;
+        document.getElementById('project-name').textContent = projectName;
+        document.getElementById('delete-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('delete-modal').classList.add('hidden');
+        currentProjectId = null;
+    }
+
+    document.getElementById('confirm-delete').addEventListener('click', () => {
+        if (currentProjectId) {
+            document.getElementById('delete-form-' + currentProjectId).submit();
+        }
+    });
+
+    document.getElementById('delete-modal').addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeModal();
+    });
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeModal();
+    });
+</script>
 @endsection

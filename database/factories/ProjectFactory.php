@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 class ProjectFactory extends Factory
 {
@@ -39,6 +40,7 @@ class ProjectFactory extends Factory
             'description' => $this->faker->randomElement($projectDescriptions),
             'start_date' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
             'deadline' => $this->faker->dateTimeBetween('+2 months', '+6 months'),
+            'user_id' => User::inRandomOrder()->first()->id ?? User::factory()->create()->id,
         ];
     }
 }

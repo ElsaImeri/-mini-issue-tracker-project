@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tag;
+use App\Http\Requests\StoreTagRequest;
+use App\Http\Requests\UpdateTagRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,16 +23,13 @@ class TagController extends Controller
         return view('tags.create');
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(StoreTagRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:tags,name',
-            'color' => 'nullable|string|size:7|starts_with:#',
-        ]);
-
+        $validated = $request->validated();
+        
         Tag::create([
-            'name' => $request->name,
-            'color' => $request->color ?? $this->generateRandomColor(),
+            'name' => $validated['name'],
+            'color' => $validated['color'] ?? $this->generateRandomColor(),
         ]);
 
         return redirect()->route('tags.index')
@@ -51,16 +50,13 @@ class TagController extends Controller
         return view('tags.edit', compact('tag'));
     }
 
-    public function update(Request $request, Tag $tag): RedirectResponse
+    public function update(UpdateTagRequest $request, Tag $tag): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:tags,name,' . $tag->id,
-            'color' => 'nullable|string|size:7|starts_with:#',
-        ]);
-
+        $validated = $request->validated();
+        
         $tag->update([
-            'name' => $request->name,
-            'color' => $request->color ?? $tag->color,
+            'name' => $validated['name'],
+            'color' => $validated['color'] ?? $tag->color,
         ]);
 
         return redirect()->route('tags.index')
@@ -80,7 +76,7 @@ class TagController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:tags,name',
-            'color' => 'nullable|string|size:7|starts_with:#',
+            'color' => 'nullable|string|size:7|starts_with:#|regex:/^#[a-f0-9]{6}$/i',
         ]);
 
         $tag = Tag::create([

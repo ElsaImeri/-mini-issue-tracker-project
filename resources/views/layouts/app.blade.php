@@ -50,6 +50,20 @@
                 flex-direction: column;
             }
             
+            /* Stilizim për header fix */
+            .top-navigation-bar {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                background-color: rgb(255 255 255 / 0.95);
+            }
+            
+            @media (prefers-color-scheme: dark) {
+                .top-navigation-bar {
+                    background-color: rgb(31 41 55 / 0.95);
+                }
+            }
+            
             @media (max-width: 768px) {
                 .desktop-sidebar {
                     display: none;
@@ -134,6 +148,20 @@
                                 <span class="font-medium">{{ __('Issues') }}</span>
                             </a>
                         </li>
+                        <!-- New Tags Menu Item -->
+                        <li>
+                            <a href="{{ route('tags.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('tags.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
+                                <i class="bi bi-tags mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Tags') }}</span>
+                            </a>
+                        </li>
+                        <!-- New Users Menu Item -->
+                        <li>
+                            <a href="{{ route('users.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('users.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
+                                <i class="bi bi-people mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Users') }}</span>
+                            </a>
+                        </li>
                     </ul>
 
                     <!-- Menu section divider -->
@@ -143,7 +171,7 @@
 
                     <ul class="space-y-1 px-2">
                         <li>
-                            <a href="{{ route('profile.edit') }}" class="flex items-center p-3 rounded-lg menu-item text-gray-700 dark:text-gray-300">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('profile.edit') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}">
                                 <i class="bi bi-person mr-3 text-lg"></i>
                                 <span class="font-medium">{{ __('Profile') }}</span>
                             </a>
@@ -208,6 +236,20 @@
                                 <span class="font-medium">{{ __('Issues') }}</span>
                             </a>
                         </li>
+                        <!-- New Tags Menu Item for Mobile -->
+                        <li>
+                            <a href="{{ route('tags.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('tags.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
+                                <i class="bi bi-tags mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Tags') }}</span>
+                            </a>
+                        </li>
+                        <!-- New Users Menu Item for Mobile -->
+                        <li>
+                            <a href="{{ route('users.index') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('users.*') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
+                                <i class="bi bi-people mr-3 text-lg"></i>
+                                <span class="font-medium">{{ __('Users') }}</span>
+                            </a>
+                        </li>
                     </ul>
 
                     <!-- Menu section divider -->
@@ -217,7 +259,7 @@
 
                     <ul class="space-y-1 px-2">
                         <li>
-                            <a href="{{ route('profile.edit') }}" class="flex items-center p-3 rounded-lg menu-item text-gray-700 dark:text-gray-300" @click="mobileOpen = false">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center p-3 rounded-lg menu-item {{ request()->routeIs('profile.edit') ? 'active-menu' : 'text-gray-700 dark:text-gray-300' }}" @click="mobileOpen = false">
                                 <i class="bi bi-person mr-3 text-lg"></i>
                                 <span class="font-medium">{{ __('Profile') }}</span>
                             </a>
@@ -242,8 +284,8 @@
 
             <!-- Main Content -->
             <div class="main-content-container">
-                <!-- Top navigation bar - Simplified -->
-                <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
+                <!-- Top navigation bar - Fixed -->
+                <nav class="top-navigation-bar shadow-sm border-b border-gray-200 dark:border-gray-700">
                     <div class="px-4 sm:px-6 lg:px-8">
                         <div class="flex justify-between h-16">
                             <div class="flex items-center">
@@ -259,6 +301,10 @@
                                             {{ __('Projects') }}
                                         @elseif(request()->routeIs('issues.*'))
                                             {{ __('Issues') }}
+                                        @elseif(request()->routeIs('tags.*'))
+                                            {{ __('Tags') }}
+                                        @elseif(request()->routeIs('users.*'))
+                                            {{ __('Users') }}
                                         @elseif(request()->routeIs('profile.edit'))
                                             {{ __('Profile') }}
                                         @else
@@ -305,19 +351,33 @@
                     </div>
                 </nav>
 
-                <!-- Page Heading -->
-                @isset($header)
-                    <header class="bg-white dark:bg-gray-800 shadow">
-                        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-                            {{ $header }}
-                        </div>
-                    </header>
-                @endisset
-
                 <!-- Page Content -->
                 <main class="flex-1 overflow-y-auto p-4 md:p-6">
                     <div class="mx-auto max-w-7xl py-4 md:py-6 sm:px-6 lg:px-8">
-                        @yield('content')
+                        <!-- Session Status -->
+                        @if (session('status'))
+                            <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+
+                        <!-- Profile Form Content -->
+                        @if(request()->routeIs('profile.edit'))
+                            <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+                                @include('profile.partials.update-profile-information-form')
+                                
+                                <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                    @include('profile.partials.update-password-form')
+                                </div>
+                                
+                                <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-8">
+                                    @include('profile.partials.delete-user-form')
+                                </div>
+                            </div>
+                        @else
+                            <!-- Other page content -->
+                            @yield('content')
+                        @endif
                     </div>
                 </main>
             </div>

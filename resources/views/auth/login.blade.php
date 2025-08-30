@@ -199,11 +199,7 @@
                         <label class="form-check-label" for="remember_me">Remember me</label>
                     </div>
                     
-                    @if (Route::has('password.request'))
-                        <a class="forgot-link" href="{{ route('password.request') }}">
-                            Forgot your password?
-                        </a>
-                    @endif
+                 
                 </div>
 
                 <!-- Submit Button -->
