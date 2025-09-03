@@ -15,9 +15,13 @@ A Laravel-based Issue Tracking System for small teams to manage projects, issues
 ### Installation
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd mini-issue-tracker-project
+   git clone https://github.com/ElsaImeri/-mini-issue-tracker-project.git
+   Note: The folder name may start with a dash (-mini-issue-tracker-project).
+  In that case, either rename the folder manually to mini-issue-tracker-project,
+ or use quotes when changing directory:
+
+ cd ".\-mini-issue-tracker-project"
+
  Install dependencies
 
 composer install
@@ -29,13 +33,16 @@ Configure environment
 cp .env.example .env
 php artisan key:generate
 
-
+ 
 Update .env with your database credentials:
 
 DB_DATABASE=your_database
 DB_USERNAME=your_username
 DB_PASSWORD=your_password
 
+Create the database manually (via phpMyAdmin or MySQL console):
+
+CREATE DATABASE mini_issue_tracker_project 
 
 Initialize database
 
